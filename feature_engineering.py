@@ -38,27 +38,26 @@ def get_mean_value( x ):
     return np.where(mean_<0, 0, mean_)
     
 def transform_features( data ):
-    logger.info('start transform_features')
-    data['RR1_mean'] = data['RR1'].map( get_mean_value )
     return data
     
 def create_features( data ):
     logger.info('start create_features')
     return data
     
+# important do not drop identifier or target ;)
 def select_features( data ):
-    droplist = ['TimeToEnd', 'DistanceToRadar', 'Composite', 'HybridScan', 'HydrometeorType', 
-            'Kdp', 'RR1', 'RR2', 'RR3', 'RadarQualityIndex', 'Reflectivity', 'ReflectivityQC', 
-            'RhoHV', 'Velocity', 'Zdr', 'LogWaterVolume', 'MassWeightedMean', 'MassWeightedSD']
+    #droplist = ['datetime']
     logger.info('start select_features')
-    return data.drop( droplist, axis=1 )
+    return data#.drop( droplist, axis=1 )
     
-def engineer_features( data ):
+def engineer_features( infile, outfile ):
     logger.info('start engineer_features')
+    data = pd.read_csv( infile, delimiter=',' )
     data = treat_features( data )
     data = transform_features( data )
     data = create_features( data )
     data = select_features( data )
+    data.to_csv( outfile, sep=',', index=False )
     return data
 
 

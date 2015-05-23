@@ -6,38 +6,54 @@ Created on Fri May 15 22:35:53 2015
 """
 
 import numpy as np
+import pandas as pd
+from sklearn import svm
 from sklearn.linear_model import BayesianRidge
-from sklearn.metrics import mean_squared_error
+from sklearn.externals import joblib
 
-from crps import CRPS
-
+import settings
 
 class ML_Model():
 
     def __init__(self):
-        self.clf = BayesianRidge()
+        self.clf = svm.SVR(kernel='rbf', C=1e3, gamma=0.1)
 
-    def train_model( self, train_features, train_targets):
+    def store_model(self):
+        joblib.dump(self.clf, settings.MODEL) 
+        
+    def load_model(self):
+        self.clf = joblib.load( settings.MODEL )
+
+
+    def train_model( self ):
+        train_features, train_targets = self.get_datasets_( settings.PROCESSED_TRAIN )
+        self.train_model_( train_features, train_targets )
+        test_features, test_targets = self.get_datasets_( settings.PROCESSED_TEST )
+        return self.evaluate_model_( test_features, test_targets )
+
+    def get_datasets_( self, infile, submission=False ):
+        data = pd.read_csv( infile, delimiter=',' )
+        ids = data[settings.ID_FIELD]
+        data.drop( settings.ID_FIELD, inplace=True, axis=1 )
+        if submission:
+            return( data, ids )
+        else:
+            features = data.drop( [settings.TARGET_FIELD,'casual', 'registered'], axis=1 )  
+            targets = data[settings.TARGET_FIELD]
+            return (features,targets)        
+        
+        
+    def train_model_( self, train_features, train_targets):
         self.clf.fit( train_features, train_targets )
         
         
-    def sigmoid(self, center, shape=0.5, length=70):
-        # http://en.wikipedia.org/wiki/Sigmoid_function
-        xs = np.arange(length)
-        return 1. / (1 + np.exp(-(xs - center)/shape))   
-        
-    def crps_score( self, actual, prediction ):
-        solution = []
-        for idx, sample in enumerate(prediction):
-            #result = [sample.Id]
-            result =  self.sigmoid( sample ) 
-            solution.append(result)
-            if idx % 1000 == 0:
-                print("Completed row %d" % idx)
-        #solution = pd.DataFrame(solution, columns=solution_header)
-        return CRPS( solution, actual )
-        
-    def evaluate_model( self, test_features, test_targets ):
+    def evaluate_model_( self, test_features, test_targets ):
         prediction = self.clf.predict( test_features )
-        score = self.crps_score(test_targets, prediction)
+        score = settings.score(test_targets, prediction)
         return score
+        
+    
+    def predict_submission(self):
+        features, ids = self.get_datasets_( settings.PROCESSED_GLOBAL, submission=True)
+        prediction = self.clf.predict( features )
+        return ids, prediction

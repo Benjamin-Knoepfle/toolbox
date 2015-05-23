@@ -1,19 +1,20 @@
 # -*- coding: utf-8 -*-
 """
-Created on Fri May  8 18:00:49 2015
+Created on Sun May 17 17:23:52 2015
 
 @author: root
 """
+
 import sys
 import logging
 
 import settings
-import initial_preparation
 import feature_engineering
 from ml_model import ML_Model
+import submission_writer
 
 # configure logging
-logger = logging.getLogger("train_pipeline")
+logger = logging.getLogger("submission_pipeline")
 
 handler = logging.StreamHandler(sys.stderr)
 handler.setFormatter(logging.Formatter(
@@ -23,17 +24,17 @@ logger.addHandler(handler)
 logger.setLevel(logging.DEBUG)
 
 
-# Create a "local" train and testset
-initial_preparation.create_test_and_train_set()
-
 # Feature engineer ( Transform features and create new ones )
 logger.info('Start Feature Engineering')
-train_data = feature_engineering.engineer_features(settings.LOKAL_TRAIN, settings.PROCESSED_TRAIN)
-test_data = feature_engineering.engineer_features (settings.LOKAL_TEST, settings.PROCESSED_TEST )
+
+test_data = feature_engineering.engineer_features( settings.GLOBAL_TEST, settings.PROCESSED_GLOBAL )
+
+#test_data.drop( settings.ID_FIELD, inplace=True, axis=1 )
 
 # Train model and evaluate 
 logger.info('Train and Evaluate Model')
 model = ML_Model()
-score = model.train_model()
-model.store_model()
-print(score)
+model.load_model()
+ids, prediction = model.predict_submission()
+
+submission_writer.create_submission( ids, prediction )
