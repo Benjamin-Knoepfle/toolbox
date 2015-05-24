@@ -5,27 +5,36 @@ Created on Fri May 15 21:56:13 2015
 @author: root
 """
 
+import datetime
+
 import sklearn.metrics 
 
 import my_metrics 
 
-PATH = '/home/borschi/data_science/bike_sharing/data/'
-RAW_PATH = PATH + 'raw_data/'
-WORK_PATH = PATH + 'work_data/'
-FINAL_PATH = PATH + 'final_data/'
-MODEL_PATH = PATH + 'model_data/'
+TIME = datetime.datetime.now().strftime("%Y%m%d_%H%M")
+
+PATH = '/home/borschi/data_science/bike_sharing/'
+
+RAW_PATH = PATH + 'data/raw_data/'
+WORK_PATH = PATH + 'data/work_data/'
+FINAL_PATH = PATH + 'data/final_data/'
+MODEL_PATH = PATH + 'data/model_data/'
+
+EXPO_FIGS = PATH + 'figures/exploration_figures/'+TIME+'_'
+
 
 GLOBAL_TRAIN = RAW_PATH+'train.csv'
 GLOBAL_TEST = RAW_PATH+'test.csv'
-PREFIX = 'baseline'
-LOKAL_TRAIN = WORK_PATH+PREFIX+'_train.csv'
-LOKAL_TEST = WORK_PATH+PREFIX+'_test.csv'
-PROCESSED_TRAIN = WORK_PATH+PREFIX+'_processed_train.csv'
-PROCESSED_TEST = WORK_PATH+PREFIX+'_processed_test.csv'
-PROCESSED_GLOBAL = WORK_PATH+PREFIX+'_processed_global.csv'
-SUBMISSION = FINAL_PATH+PREFIX+'_submission.csv'
+FEATURE_PREFIX = 'with_date'
+MODEL_PREFIX = '24_5_svr'
+LOKAL_TRAIN = WORK_PATH+'train.csv'
+LOKAL_TEST = WORK_PATH+'test.csv'
+PROCESSED_TRAIN = WORK_PATH+FEATURE_PREFIX+'_processed_train.csv'
+PROCESSED_TEST = WORK_PATH+FEATURE_PREFIX+'_processed_test.csv'
+PROCESSED_GLOBAL = WORK_PATH+FEATURE_PREFIX+'_processed_global.csv'
+SUBMISSION = FINAL_PATH+MODEL_PREFIX+'_submission.csv'
 
-MODEL = MODEL_PATH + PREFIX + 'model.pkl'
+MODEL = MODEL_PATH + MODEL_PREFIX + 'model.pkl'
 
 ID_FIELD = 'datetime'
 TARGET_FIELD = 'count'

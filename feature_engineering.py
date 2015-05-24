@@ -11,8 +11,11 @@ import logging
 
 import pandas as pd
 import numpy as np
+from sklearn import preprocessing
 
 import settings
+import feature_exploration 
+import feature_transformation
 
 # configure logging
 logger = logging.getLogger("feature engineering")
@@ -24,8 +27,23 @@ handler.setFormatter(logging.Formatter(
 logger.addHandler(handler)
 logger.setLevel(logging.DEBUG)
 
+
+numerical_features = ['temp', 'atemp', 'humidity', 'windspeed']
+categorical_features = ['season', 'holiday', 'workingday', 'weather']
+
+
+'''
+Hieraus muss ich noch ein objekt machen, das zustandsabhangige transformationen speicher kann.
+Wie zb. scaler = preprocessing.StandardScaler().fit(X) und pca, etc
+'''
+
+
 def explore_features( data ):
     logger.info('start explore_features')
+    ## univariate and bivariate feature analysis
+    ## create index table
+    ## random forest method
+    ## clustering
     return data
     
 def treat_features( data ):
@@ -38,17 +56,35 @@ def get_mean_value( x ):
     return np.where(mean_<0, 0, mean_)
     
 def transform_features( data ):
+    for numerical in numerical_features:
+        feat_name = numerical+'_z'
+        data[feat_name] = preprocessing.scale( data[numerical] )
     return data
+        
     
 def create_features( data ):
     logger.info('start create_features')
+    #data = pd.get_dummies( data, ['season', 'weather'] ) 
+    data['hours'] = data['datetime'].apply( get_hour )   
+    data['day'] = data['datetime'].apply( get_day )    
+    data['month'] = data['datetime'].apply( get_month )        
     return data
+
+def get_hour(x):
+    return x[-8:-6]
+
+def get_day(x):
+    return x[-11:-9]
+
+def get_month(x):
+    return x[-14:-12]
+
     
 # important do not drop identifier or target ;)
 def select_features( data ):
-    #droplist = ['datetime']
+    droplist = numerical_features
     logger.info('start select_features')
-    return data#.drop( droplist, axis=1 )
+    return data.drop( droplist, axis=1 )
     
 def engineer_features( infile, outfile ):
     logger.info('start engineer_features')
@@ -62,4 +98,4 @@ def engineer_features( infile, outfile ):
 
 
 if __name__ == '__main__':
-    logger.info('Sorry man')
+    data = engineer_features(settings.LOKAL_TRAIN, settings.PROCESSED_TRAIN)

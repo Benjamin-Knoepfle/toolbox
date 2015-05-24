@@ -37,3 +37,5 @@ model = ML_Model()
 score = model.train_model()
 model.store_model()
 print(score)
+
+    
