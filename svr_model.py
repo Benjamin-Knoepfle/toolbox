@@ -8,7 +8,7 @@ Created on Sat May 23 21:40:54 2015
 from sklearn import svm
 from sklearn import grid_search
 from sklearn.metrics import make_scorer
-
+from my_metrics import dummy
 
 import settings
 
@@ -23,7 +23,7 @@ class SVR():
             self.clf = grid_search.GridSearchCV( svm.SVR(), 
                                                 self.paramgrid, 
                                                 verbose=5,
-                                                scoring=make_scorer( settings.score,
+                                                scoring=make_scorer( dummy,
                                                                     greater_is_better=False
                                                                     )
                                                 )

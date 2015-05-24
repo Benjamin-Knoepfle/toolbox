@@ -15,7 +15,7 @@ from ml_model import ML_Model
 # configure logging
 logger = logging.getLogger("train_pipeline")
 
-handler = logging.StreamHandler(sys.stderr)
+handler = logging.FileHandler(settings.LOG_PATH)
 handler.setFormatter(logging.Formatter(
     '%(asctime)s %(levelname)s %(name)s: %(message)s'))
 

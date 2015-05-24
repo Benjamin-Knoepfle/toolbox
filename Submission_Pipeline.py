@@ -16,7 +16,7 @@ import submission_writer
 # configure logging
 logger = logging.getLogger("submission_pipeline")
 
-handler = logging.StreamHandler(sys.stderr)
+handler = logging.FileHandler(settings.LOG_PATH)
 handler.setFormatter(logging.Formatter(
     '%(asctime)s %(levelname)s %(name)s: %(message)s'))
 
