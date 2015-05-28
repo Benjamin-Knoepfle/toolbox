@@ -21,7 +21,7 @@ FINAL_PATH = PATH + 'data/final_data/'
 MODEL_PATH = PATH + 'data/model_data/'
 
 FEATURE_PREFIX = 'with_date'
-MODEL_PREFIX = '24_5_svr'
+MODEL_PREFIX = ''
 
 EXPO_FIGS = PATH + 'figures/exploration_figures/'+TIME+'_'
 LOG_PATH = PATH + 'logs/'+TIME+'_'+FEATURE_PREFIX+'_'+MODEL_PREFIX+'.log'
