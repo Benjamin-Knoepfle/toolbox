@@ -26,8 +26,8 @@ logger.setLevel(logging.DEBUG)
 
 # Feature engineer ( Transform features and create new ones )
 logger.info('Start Feature Engineering')
-
-test_data = feature_engineering.engineer_features( settings.GLOBAL_TEST, settings.PROCESSED_GLOBAL )
+fe = feature_engineering.FeatureEngineer( False )
+test_data = fe.engineer_features( settings.GLOBAL_TEST, settings.PROCESSED_GLOBAL )
 
 #test_data.drop( settings.ID_FIELD, inplace=True, axis=1 )
 

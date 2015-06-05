@@ -28,8 +28,10 @@ initial_preparation.create_test_and_train_set()
 
 # Feature engineer ( Transform features and create new ones )
 logger.info('Start Feature Engineering')
-train_data = feature_engineering.engineer_features(settings.LOKAL_TRAIN, settings.PROCESSED_TRAIN)
-test_data = feature_engineering.engineer_features (settings.LOKAL_TEST, settings.PROCESSED_TEST )
+fe = feature_engineering.FeatureEngineer()
+train_data = fe.engineer_features(settings.LOKAL_TRAIN, settings.PROCESSED_TRAIN)
+fe.train_state = False
+test_data = fe.engineer_features (settings.LOKAL_TEST, settings.PROCESSED_TEST )
 
 # Train model and evaluate 
 logger.info('Train and Evaluate Model')

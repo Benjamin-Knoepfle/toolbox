@@ -10,6 +10,10 @@ import logging
 
 import matplotlib.pyplot as plt
 import pandas as pd
+from sklearn.decomposition import PCA
+from sklearn.decomposition import FactorAnalysis
+
+
 
 import settings
 
@@ -31,11 +35,42 @@ time_feature = ['datetime']
 target = 'count'
 
 
+def pca( data ):
+    pca = PCA()
+    features = numerical_features + categorical_features
+    pca_data = pca.fit_transform( data[features] )
+    pd.DataFrame( pca.explained_variance_ratio_ ).plot(kind='bar')
+    plt.figure()
+    plt.subplot(2,2,0)
+    plt.scatter( pca_data[:,0], pca_data[:,1], c=data[target] )
+    plt.subplot(2,2,1)
+    plt.scatter( pca_data[:,2], pca_data[:,3], c=data[target] )
+    plt.subplot(2,2,2)
+    plt.scatter( pca_data[:,4], pca_data[:,5], c=data[target] )
+    plt.subplot(2,2,3)
+    plt.scatter( pca_data[:,6], pca_data[:,7], c=data[target] )
+    return pca_data
 
-def create_histogram( data, feature ):
+def factor_analysis( data ):
+    fa = FactorAnalysis()
+    features = numerical_features + categorical_features
+    fa_data = fa.fit_transform( data[features] )
+    plt.figure()
+    plt.subplot(2,2,0)
+    plt.scatter( fa_data[:,0], fa_data[:,1], c=data[target] )
+    plt.subplot(2,2,1)
+    plt.scatter( fa_data[:,2], fa_data[:,3], c=data[target] )
+    plt.subplot(2,2,2)
+    plt.scatter( fa_data[:,4], fa_data[:,5], c=data[target] )
+    plt.subplot(2,2,3)
+    plt.scatter( fa_data[:,6], fa_data[:,7], c=data[target] )
+    return fa_data
+    
+
+def create_histogram( data, feature, bins=10 ):
     plt.figure()
     plt.title( feature )
-    plt.hist( data[feature] )
+    plt.hist( data[feature], bins=bins )
     plt.savefig( settings.EXPO_FIGS+feature+'_hist.png' )
     
 def create_boxplot( data, feature ):
@@ -84,6 +119,6 @@ def create_bivariate_analysis():
     
     
 if __name__ == '__main__':
-    data = pd.read_csv( settings.LOKAL_TRAIN, delimiter=',' )
+    data = pd.read_csv( settings.PROCESSED_TRAIN, delimiter=',' )
     create_univarite_analysis()
     create_bivariate_analysis()

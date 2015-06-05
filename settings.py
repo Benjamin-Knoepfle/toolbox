@@ -21,7 +21,7 @@ FINAL_PATH = PATH + 'data/final_data/'
 MODEL_PATH = PATH + 'data/model_data/'
 
 FEATURE_PREFIX = 'with_date'
-MODEL_PREFIX = ''
+MODEL_PREFIX = '24_5_svr'
 
 EXPO_FIGS = PATH + 'figures/exploration_figures/'+TIME+'_'
 LOG_PATH = PATH + 'logs/'+TIME+'_'+FEATURE_PREFIX+'_'+MODEL_PREFIX+'.log'
@@ -38,8 +38,8 @@ PROCESSED_GLOBAL = WORK_PATH+FEATURE_PREFIX+'_processed_global.csv'
 
 SUBMISSION = FINAL_PATH+MODEL_PREFIX+'_submission.csv'
 
-MODEL = MODEL_PATH + MODEL_PREFIX + 'model.pkl'
-
+MODEL = MODEL_PATH + MODEL_PREFIX + '_model.pkl'
+FEATURE = MODEL_PATH + FEATURE_PREFIX 
 
 
 

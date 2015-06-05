@@ -10,12 +10,16 @@ import pandas as pd
 from sklearn.externals import joblib
 
 import settings
+import rf_model
 import svr_model
 
 class ML_Model():
 
-    def __init__(self):
-        self.clf = svr_model.SVR()
+    def __init__(self, model=None ):
+        if model:
+            self.clf = model
+        else:
+            self.clf = rf_model.RandomForest()
 
     def store_model(self):
         joblib.dump(self.clf, settings.MODEL) 
@@ -60,3 +64,12 @@ class ML_Model():
         features, ids = self.get_datasets_( settings.PROCESSED_GLOBAL, submission=True)
         prediction = self.clf.predict( features )
         return ids, prediction
+        
+        
+if __name__ == '__main__':
+    # Train model and evaluate 
+    #logger.info('Train and Evaluate Model')
+    model = ML_Model( svr_model.SVR() )
+    score = model.train_model()
+    model.store_model()
+    print(score)
