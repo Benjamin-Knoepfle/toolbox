@@ -12,7 +12,7 @@ from my_metrics import dummy
 
 import settings
 
-class SVR():
+class Regression_Model():
     
     def __init__( self ):
         self.paramgrid = {'kernel':('linear', 'rbf', 'sigmoid'), 'C':[0.1, 0.5, 1, 5, 10], 'degree':[2,3,4,5]}
