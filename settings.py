@@ -7,13 +7,13 @@ Created on Fri May 15 21:56:13 2015
 
 import datetime
 
-import sklearn.metrics 
-
+import sklearn.metrics as metrics
 import my_metrics 
+import svr_model as ml_model
 
 TIME = datetime.datetime.now().strftime("%Y%m%d_%H%M")
 
-PATH = '/home/borschi/data_science/bike_sharing/'
+PATH = '/opt/bknoepfle/data_science/bike_sharing/'
 
 RAW_PATH = PATH + 'data/raw_data/'
 WORK_PATH = PATH + 'data/work_data/'
@@ -41,7 +41,7 @@ SUBMISSION = FINAL_PATH+MODEL_PREFIX+'_submission.csv'
 MODEL = MODEL_PATH + MODEL_PREFIX + '_model.pkl'
 FEATURE = MODEL_PATH + FEATURE_PREFIX 
 
-
+model = ml_model.SVR()
 
 ID_FIELD = 'datetime'
 TARGET_FIELD = 'count'
@@ -49,4 +49,4 @@ TARGET_FIELD = 'count'
 NUMBER_OF_CORS= 4
 TRAIN_RATIO = 0.8
 
-score = my_metrics.rmsle
+score = metrics.mean_squared_error
