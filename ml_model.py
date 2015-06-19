@@ -51,13 +51,14 @@ class ML_Model():
             return (features,targets)        
       
     def gridsearch( self,  features, targets ):
-        classy = grid_search.GridSearchCV( self.clf.clf, 
+        self.classy = grid_search.GridSearchCV( self.clf.clf, 
                                            self.clf.paramgrid, 
                                            n_jobs = settings.NUMBER_OF_CORS,
                                            verbose=5
                                          )
-        classy.fit( features, targets )
-        self.clf.clf = classy.best_estimator_ 
+        self.classy.fit( features, targets )
+        self.clf.clf = self.classy.best_estimator_ 
+        self.n_classes = len( np.unique( targets ) )
         
     def train_model_( self, train_features, train_targets ):
         self.clf.fit( train_features, train_targets )
@@ -66,6 +67,8 @@ class ML_Model():
     def evaluate_model_( self, test_features, test_targets ):
         prediction = self.clf.predict( test_features )
         score = settings.score(test_targets, prediction)
+        self.test_targets = test_targets
+        self.predicted_targets = prediction
         return score
         
     
@@ -76,7 +79,7 @@ class ML_Model():
         
         
     def plot_confusion_matrix( self ):
-        cm = confusion_matrix(self.test_target, self.predicted_target)
+        cm = confusion_matrix(self.test_targets, self.predicted_targets)
         # Show confusion matrix in a separate window
         plt.matshow(cm)
         plt.title('Confusion matrix')
@@ -91,7 +94,7 @@ class ML_Model():
         tpr = dict()
         roc_auc = dict()
         for i in range(1, self.n_classes+1):
-            fpr[i], tpr[i], _ = roc_curve(self.test_target == i, self.predicted_target_prob[:,i-1])
+            fpr[i], tpr[i], _ = roc_curve(self.test_targets == i, self.predicted_target_prob[:,i-1])
             roc_auc[i] = auc(fpr[i], tpr[i])
         for i in range(1, self.n_classes+1):
             plt.plot(fpr[i], tpr[i], label='ROC curve of class {0} (area = {1:0.2f})'''.format(i, roc_auc[i]))

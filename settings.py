@@ -41,7 +41,7 @@ SUBMISSION = FINAL_PATH+MODEL_PREFIX+'_submission.csv'
 MODEL = MODEL_PATH + MODEL_PREFIX + '_model.pkl'
 FEATURE = MODEL_PATH + FEATURE_PREFIX 
 
-model = ml_model.SVR()
+model = ml_model.Regression_Model()
 
 ID_FIELD = 'datetime'
 TARGET_FIELD = 'count'
