@@ -6,10 +6,10 @@ Created on Fri May 15 21:56:13 2015
 """
 
 import datetime
+import json
 
 import sklearn.metrics as metrics
 import my_metrics 
-import svr_model as ml_model
 
 TIME = datetime.datetime.now().strftime("%Y%m%d_%H%M")
 
@@ -41,7 +41,6 @@ SUBMISSION = FINAL_PATH+MODEL_PREFIX+'_submission.csv'
 MODEL = MODEL_PATH + MODEL_PREFIX + '_model.pkl'
 FEATURE = MODEL_PATH + FEATURE_PREFIX 
 
-model = ml_model.Regression_Model()
 
 ID_FIELD = 'datetime'
 TARGET_FIELD = 'count'
@@ -50,3 +49,22 @@ NUMBER_OF_CORS= 4
 TRAIN_RATIO = 0.8
 
 score = metrics.mean_squared_error
+
+
+class Settings():
+    
+    def __init__( self ):
+        self.pipeline_name = 'default_pipeline'
+        self.io = 'single_source'
+        self.feature_engineer = 'default_fe'
+        self.model = 'default_model'
+        
+        self.description = 'initial pipeline with default settings'
+        
+    def write( self, file_path ):
+        with open( file_path+'settings.json', 'w' ) as settings_json:
+            json.dump( self.__dict__, settings_json )
+        
+    def read( self, file_path ):
+        with open( file_path+'settings.json') as settings_json:
+            self.__dict__ = json.load( settings_json )

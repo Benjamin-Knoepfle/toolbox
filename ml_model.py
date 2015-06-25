@@ -5,7 +5,6 @@ Created on Fri May 15 22:35:53 2015
 @author: root
 """
 
-import numpy as np
 import pandas as pd
 from sklearn.externals import joblib
 from sklearn import grid_search
@@ -15,12 +14,6 @@ import matplotlib.pyplot as plt
 import settings
 
 class ML_Model():
-
-    def __init__(self, model=None ):
-        if model:
-            self.clf = model
-        else:
-            self.clf = settings.model
 
     def store_model(self):
         joblib.dump(self.clf, settings.MODEL) 
@@ -51,14 +44,14 @@ class ML_Model():
             return (features,targets)        
       
     def gridsearch( self,  features, targets ):
-        self.classy = grid_search.GridSearchCV( self.clf.clf, 
-                                           self.clf.paramgrid, 
+        self.classy = grid_search.GridSearchCV( self.clf, 
+                                           self.paramgrid, 
                                            n_jobs = settings.NUMBER_OF_CORS,
                                            verbose=5
                                          )
         self.classy.fit( features, targets )
-        self.clf.clf = self.classy.best_estimator_ 
-        self.n_classes = len( np.unique( targets ) )
+        self.clf = self.classy.best_estimator_ 
+        
         
     def train_model_( self, train_features, train_targets ):
         self.clf.fit( train_features, train_targets )
@@ -76,6 +69,30 @@ class ML_Model():
         features, ids = self.get_datasets_( settings.PROCESSED_GLOBAL, submission=True)
         prediction = self.clf.predict( features )
         return ids, prediction
+        
+        
+
+            
+        
+class Regression_Model( ML_Model ):
+
+    def evaluate_model_( self, test_features, test_targets ):
+        prediction = self.clf.predict( test_features )
+        score = settings.score(test_targets, prediction)
+        self.test_targets = test_targets
+        self.predicted_targets = prediction
+        return score
+ 
+
+           
+class Classification_Model( ML_Model ):
+    
+    def evaluate_model_( self, test_features, test_targets ):
+        prediction = self.clf.predict( test_features )
+        score = settings.score(test_targets, prediction)
+        self.test_targets = test_targets
+        self.predicted_targets = prediction
+        return score
         
         
     def plot_confusion_matrix( self ):
@@ -105,8 +122,10 @@ class ML_Model():
             plt.ylabel('True Positive Rate')
             plt.title('Some extension of Receiver operating characteristic to multi-class')
             plt.legend(loc="lower right")
-            plt.show()
-            
+            plt.show()        
+        
+        
+        
         
         
         

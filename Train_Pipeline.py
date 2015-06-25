@@ -8,11 +8,12 @@ import sys
 import logging
 
 import settings
+from settings import Settings
 import initial_preparation
 from feature_engineering import FeatureEngineer
-from ml_model import ML_Model
+import models
 import submission_writer
-
+pip
 
 class Pipeline():
     
@@ -25,6 +26,8 @@ class Pipeline():
         self.logger.addHandler(handler)
         self.logger.setLevel(logging.DEBUG)
         
+        self.settings = Settings()        
+        
         if feature_engineer:
             self.feature_engineer = feature_engineer
         else:
@@ -34,8 +37,14 @@ class Pipeline():
         if model:
             self.model = model
         else:
-            self.model = ML_Model()
+            self.model = models.SVR()
             
+        
+    def read( self, file_path ): 
+        self.settings.read( file_path )
+        
+    def write( self, file_path ):
+        self.settings.write( file_path )
         
     def set_feature_engineer( self, feature_engineer ):
         self.feature_engineer = feature_engineer
@@ -79,4 +88,4 @@ class Pipeline():
 if __name__ == '__main__':
     pipeline = Pipeline()
     pipeline.train()
-    #pipeline.predict()
+    pipeline.predict()
