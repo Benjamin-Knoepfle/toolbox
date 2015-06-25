@@ -10,6 +10,7 @@ import logging
 
 import matplotlib.pyplot as plt
 import pandas as pd
+from sklearn import tree
 from sklearn.decomposition import PCA
 from sklearn.decomposition import FactorAnalysis
 
@@ -34,6 +35,15 @@ categorical_features = ['season', 'holiday', 'workingday', 'weather']
 time_feature = ['datetime']
 target = 'count'
 
+def feature_importance_by_tree( data ):
+    features = data.drop( target, axis=1 )
+    targets = data[target]
+    if settings.Problem == 'Regression':
+        clf = tree.ExtraTreeRegressor()
+    else:
+        clf = tree.DecisionTreeClassifier()
+    clf.fit( features, targets )
+    return zip(features.columns, clf.feature_importances_)
 
 def pca( data ):
     pca = PCA()

@@ -13,7 +13,6 @@ import initial_preparation
 from feature_engineering import FeatureEngineer
 import models
 import submission_writer
-pip
 
 class Pipeline():
     
@@ -37,7 +36,7 @@ class Pipeline():
         if model:
             self.model = model
         else:
-            self.model = models.SVR()
+            self.model = models.Decision_Tree_Regressor()
             
         
     def read( self, file_path ): 

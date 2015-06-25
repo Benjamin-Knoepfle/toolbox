@@ -50,6 +50,7 @@ TRAIN_RATIO = 0.8
 
 score = metrics.mean_squared_error
 
+Problem = 'Regression'
 
 class Settings():
     
