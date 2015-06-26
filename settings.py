@@ -20,11 +20,9 @@ WORK_PATH = PATH + 'data/work_data/'
 FINAL_PATH = PATH + 'data/final_data/'
 MODEL_PATH = PATH + 'data/model_data/'
 
-FEATURE_PREFIX = 'with_date'
-MODEL_PREFIX = '24_5_svr'
 
 EXPO_FIGS = PATH + 'figures/exploration_figures/'+TIME+'_'
-LOG_PATH = PATH + 'logs/'+TIME+'_'+FEATURE_PREFIX+'_'+MODEL_PREFIX+'.log'
+LOG_PATH = PATH + 'logs/'+TIME+'_'
 
 GLOBAL_TRAIN = RAW_PATH+'train.csv'
 GLOBAL_TEST = RAW_PATH+'test.csv'
@@ -32,14 +30,8 @@ GLOBAL_TEST = RAW_PATH+'test.csv'
 LOKAL_TRAIN = WORK_PATH+'train.csv'
 LOKAL_TEST = WORK_PATH+'test.csv'
 
-PROCESSED_TRAIN = WORK_PATH+FEATURE_PREFIX+'_processed_train.csv'
-PROCESSED_TEST = WORK_PATH+FEATURE_PREFIX+'_processed_test.csv'
-PROCESSED_GLOBAL = WORK_PATH+FEATURE_PREFIX+'_processed_global.csv'
 
-SUBMISSION = FINAL_PATH+MODEL_PREFIX+'_submission.csv'
 
-MODEL = MODEL_PATH + MODEL_PREFIX + '_model.pkl'
-FEATURE = MODEL_PATH + FEATURE_PREFIX 
 
 
 ID_FIELD = 'datetime'
@@ -55,12 +47,26 @@ Problem = 'Regression'
 class Settings():
     
     def __init__( self ):
-        self.pipeline_name = 'default_pipeline'
         self.io = 'single_source'
         self.feature_engineer = 'default_fe'
-        self.model = 'default_model'
-        
+        self.model = 'ExtraTreesRegressor'        
+                        
         self.description = 'initial pipeline with default settings'
+        self.update()        
+        
+    def update( self ):
+        self.pipeline = self.feature_engineer +'_'+ self.model
+        self.logpath = self.pipeline+'.log'
+        self.feature_engineer_path = MODEL_PATH + self.feature_engineer +'.pkl'
+        self.model_path = MODEL_PATH + self.pipeline
+ 
+        self.processed_train_data_path = WORK_PATH+self.feature_engineer+'_processed_train.csv'
+        self.processed_test_data_path = WORK_PATH+self.feature_engineer+'_processed_test.csv'
+        self.processed_data_path = WORK_PATH+self.feature_engineer+'_processed.csv'
+        self.processed_submission_data_path = WORK_PATH+self.feature_engineer+'_processed_submission.csv'
+        self.predicted_data_path = WORK_PATH+self.pipeline+'_prediction.csv'     
+        self.submission_data_path = FINAL_PATH+self.pipeline+'_submission.csv'        
+        
         
     def write( self, file_path ):
         with open( file_path+'settings.json', 'w' ) as settings_json:

@@ -15,21 +15,25 @@ import settings
 
 class ML_Model():
 
-    def store_model(self):
-        joblib.dump(self.clf, settings.MODEL) 
+    def __init__( self, settings ):
+        self.settings = settings
+
+
+    def store_model( self ):
+        joblib.dump(self.clf, self.settings.model_path) 
         
     def load_model(self):
-        self.clf = joblib.load( settings.MODEL )
+        self.clf = joblib.load( self.settings.model_path )
 
 
-    def train_model( self ):
-        train_features, train_targets = self.get_datasets_( settings.PROCESSED_TRAIN )
+    def train( self ):
+        train_features, train_targets = self.get_datasets_( self.settings.processed_train_data_path )
         self.gridsearch( train_features, train_targets)
-        test_features, test_targets = self.get_datasets_( settings.PROCESSED_TEST )
-        train_features = train_features.append( test_features )
-        train_targets = train_targets.append( test_targets )
+        test_features, test_targets = self.get_datasets_( self.settings.processed_test_data_path )
         score = self.evaluate_model_( test_features, test_targets )
-        self.train_model_( train_features, train_targets )
+        features, targets = self.get_datasets_( self.settings.processed_data_path )
+        self.train_model_( features, targets )
+        self.store_model()
         return score
 
     def get_datasets_( self, infile, submission=False ):
@@ -65,9 +69,11 @@ class ML_Model():
         return score
         
     
-    def predict_submission(self):
-        features, ids = self.get_datasets_( settings.PROCESSED_GLOBAL, submission=True)
+    def predict(self):
+        self.load_model()
+        features, ids = self.get_datasets_( self.settings.processed_submission_data_path, submission=True)
         prediction = self.clf.predict( features )
+        pd.DataFrame({'id':id, 'prediction':prediction}).to_csv( self.settings.predicted_data_path, sep=';', index=False)
         return ids, prediction
         
         
@@ -125,14 +131,4 @@ class Classification_Model( ML_Model ):
             plt.show()        
         
         
-        
-        
-        
-        
-if __name__ == '__main__':
-    # Train model and evaluate 
-    #logger.info('Train and Evaluate Model')
-    model = ML_Model()
-    score = model.train_model()
-    model.store_model()
-    print(score)
+    

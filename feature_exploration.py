@@ -9,10 +9,12 @@ import logging
 
 
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
-from sklearn import tree
+from sklearn import ensemble
 from sklearn.decomposition import PCA
 from sklearn.decomposition import FactorAnalysis
+from sklearn.cluster import DBSCAN
 
 
 
@@ -35,15 +37,56 @@ categorical_features = ['season', 'holiday', 'workingday', 'weather']
 time_feature = ['datetime']
 target = 'count'
 
-def feature_importance_by_tree( data ):
+def feature_importance( data ):
     features = data.drop( target, axis=1 )
     targets = data[target]
     if settings.Problem == 'Regression':
-        clf = tree.ExtraTreeRegressor()
+        clf = ensemble.ExtraTreesRegressor(n_estimators = 250, random_state=0, n_jobs=settings.NUMBER_OF_CORS)
     else:
-        clf = tree.DecisionTreeClassifier()
+        clf = ensemble.ExtraTreesClassifier(n_estimators = 250, random_state=0, n_jobs=settings.NUMBER_OF_CORS)
     clf.fit( features, targets )
-    return zip(features.columns, clf.feature_importances_)
+    importances = clf.feature_importances_
+    std = np.std( [tree.feature_importances_ for tree in clf.estimators_], axis=0 )
+    indices = np.argsort(importances)[::-1]
+
+    logger.info("Feature ranking")
+    for f in range( len(features.columns) ):
+        logger.info( "%d. feature %s (%f)" % (f+1, features.columns[indices[f]], importances[indices[f]]) )
+    
+    plt.figure()
+    plt.title("Feature importance")
+    plt.bar( range(len(features.columns)), importances[indices],
+            color = 'r', yerr=std[indices], align='center')
+    plt.xticks( range(len(features.columns)),  features.columns[indices], rotation=70)
+    plt.xlim([-1, 10])
+    plt.show()
+    plt.savefig( settings.EXPO_FIGS+'Feature_importance.png' )
+    #return zip(features.columns, clf.feature_importances_)
+
+
+def cluster( data, eps=0.3, min_samples=10 ):
+    db = DBSCAN( eps=eps, min_samples=min_samples ).fit(data)
+    labels = db.labels_
+    n_clusters_ = len(set(labels)) - (1 if -1 in labels else 0)
+    core_samples_mask = np.zeros_like(labels, dtype=bool)
+    core_samples_mask[db.core_sample_indices_] = True
+    logger.info("Estimated number of clusters: %d" % n_clusters_ )
+    
+    unique_labels = set(labels)
+    colors = plt.cm.Spectral( np.linspace(0,1, len(unique_labels)) )
+    for k, col in zip(unique_labels, colors):
+        if k==-1:
+            col = 'k'
+        class_member_mask = (labels == k)
+        xy = data[class_member_mask & core_samples_mask]
+        plt.plot( xy[:,0], xy[:,1], 'o', markerfacecolor=col,
+                 markeredgecolor='k', markersize=14 )
+        xy = data[class_member_mask & ~core_samples_mask]
+        plt.plot( xy[:,0], xy[:,1], 'o', markerfacecolor=col,
+                 markeredgecolor='k', markersize=6 )
+    plt.title('Estimated number of clusters: %d' % n_clusters_)
+    plt.show()
+    plt.savefig( settings.EXPO_FIGS+'Explorative_Clustering.png' )
 
 def pca( data ):
     pca = PCA()

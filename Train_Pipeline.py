@@ -7,11 +7,14 @@ Created on Fri May  8 18:00:49 2015
 import sys
 import logging
 
+
+from sklearn.externals import joblib
+
 import settings
 from settings import Settings
 import initial_preparation
 from feature_engineering import FeatureEngineer
-import models
+from models import Model
 import submission_writer
 
 class Pipeline():
@@ -26,24 +29,35 @@ class Pipeline():
         self.logger.setLevel(logging.DEBUG)
         
         self.settings = Settings()        
-        
-        if feature_engineer:
-            self.feature_engineer = feature_engineer
-        else:
-            self.logger.info('Adding default FeatureEngineer')
-            self.feature_engineer = FeatureEngineer()
-            
-        if model:
-            self.model = model
-        else:
-            self.model = models.Decision_Tree_Regressor()
+        self.feature_engineer = FeatureEngineer( self.settings )
+        self.model = Model().get_model( Settings() )
             
         
     def read( self, file_path ): 
         self.settings.read( file_path )
+        self.read_feature_engineer( settings.feature_engineer_path )
+        self.read_model( settings.model_path )
+        
+    def read_feature_engineer( self, file_path ):
+        print('implement this')
+        
+    def read_model( self, file_path ):
+        self.model = joblib.load( file_path+'_main.pkl' ) 
+        self.model.load_model(file_path)          
+        
         
     def write( self, file_path ):
         self.settings.write( file_path )
+        self.write_feature_engineer( settings.feature_engineer_path )
+        self.write_model( settings.model_path )
+        
+    def write_feature_engineer( self, file_path ):
+        print('implement this')
+        
+    def write_model( self, file_path ):
+        joblib.dump( self.model, file_path+'_main.pkl' ) 
+        self.model.store_model(file_path)  
+        
         
     def set_feature_engineer( self, feature_engineer ):
         self.feature_engineer = feature_engineer

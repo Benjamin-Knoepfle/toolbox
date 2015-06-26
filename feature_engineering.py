@@ -31,22 +31,21 @@ logger.setLevel(logging.DEBUG)
 
 class FeatureEngineer():
 
-    def __init__(self, train=True):
+    def __init__(self, settings):
+        self.settings = settings
         self.numerical_features = ['temp', 'atemp', 'humidity', 'windspeed']
         self.categorical_features = ['season', 'holiday', 'workingday', 'weather']
         self.time_features = []
         self.text_features = []
-        
-        self.train_state = train
-    
+            
         self.standard_scaler = {}    
     
     
     def store_model(self):
-        joblib.dump(self.standard_scaler, settings.FEATURE+ 'standard_feature.pkl' ) 
+        joblib.dump(self.standard_scaler, self.settings.feature_engineer_path ) 
         
     def load_model(self):
-        self.standard_scaler = joblib.load( settings.FEATURE+ 'standard_feature.pkl' )
+        self.standard_scaler = joblib.load( self.settings.feature_engineer_path )
     '''
     Hieraus muss ich noch ein objekt machen, das zustandsabhangige transformationen speicher kann.
     Wie zb. scaler = preprocessing.StandardScaler().fit(X) und pca, etc
@@ -69,18 +68,18 @@ class FeatureEngineer():
         mean_ = array.mean()
         return np.where(mean_<0, 0, mean_)
         
-    def transform_numerical_features( self, data ):        
+    def transform_numerical_features( self, data, train_state=True ):        
         for numerical in self.numerical_features:
             feat_name = numerical+'_z'
-            if self.train_state:
+            if train_state:
                 self.standard_scaler[feat_name] = preprocessing.StandardScaler()
                 data[feat_name] = self.standard_scaler[feat_name].fit_transform( data[numerical] )
             else:
                 data[feat_name] = self.standard_scaler[feat_name].transform( data[numerical] )
         return data
         
-    def transform_features( self, data ):
-        data = self.transform_numerical_features( data )
+    def transform_features( self, data, train_state=True ):
+        data = self.transform_numerical_features( data, train_state )
         return data
             
         
@@ -108,21 +107,53 @@ class FeatureEngineer():
         logger.info('start select_features')
         return data.drop( droplist, axis=1 )
         
-    def engineer_features( self, infile, outfile ):
-        logger.info('start engineer_features')
-        if not self.train_state:
-            self.load_model()
-        data = pd.read_csv( infile, delimiter=',' )
+        
+    def train( self ):
+        logger.info('start train')
+        # Train_data
+        data = pd.read_csv( settings.LOKAL_TRAIN )
+        train_data = self.fit_transform( data )  
+        train_data.to_csv( self.settings.processed_train_data_path )
+        # Test_data
+        data = pd.read_csv( settings.LOKAL_TEST )
+        test_data = self.transform( data )  
+        test_data.to_csv( self.settings.processed_test_data_path )
+        # All_data
+        data = pd.read_csv( settings.GLOBAL_TRAIN )
+        data = self.fit_transform( data )
+        data.to_csv( self.settings.processed_data_path )
+        # Store FE
+        self.store_model()
+        
+    def predict( self ):
+        logger.info('start predict')
+        self.load_model()
+        data = pd.read_csv( settings.GLOBAL_TEST )
+        data = self.transform( data ) 
+        data.to_csv( self.settings.processed_submission_data_path )
+        
+        
+    def fit_transform( self, data ):
+        logger.info('start fit_transform')
         data = self.treat_features( data )
         data = self.transform_features( data )
         data = self.create_features( data )
         data = self.select_features( data )
-        data.to_csv( outfile, sep=',', index=False )
-        if self.train_state:
-            self.store_model()
         return data
+        
+    def transform( self, data ):
+        logger.info('start transform')
+        data = self.treat_features( data )
+        data = self.transform_features( data, False )
+        data = self.create_features( data )
+        data = self.select_features( data ) 
+        return data
+        
+        
+
 
 
 if __name__ == '__main__':
-    fe = FeatureEngineer( False )
-    data = fe.engineer_features(settings.LOKAL_TRAIN, settings.PROCESSED_TRAIN)
+    fe = FeatureEngineer( settings.Settings() )
+    #fe.train()
+    fe.predict()
